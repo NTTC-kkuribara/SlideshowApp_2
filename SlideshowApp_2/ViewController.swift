@@ -11,6 +11,8 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var ImageView: UIImageView!
     @IBOutlet weak var slideshowButton: UIButton!
+    @IBOutlet weak var nextImageButton: UIButton!
+    @IBOutlet weak var backImageButton: UIButton!
     
     // タイマー
     var timer: Timer!
@@ -43,11 +45,18 @@ class ViewController: UIViewController {
         slideshowButton.setTitle("再生", for: .normal)
         // 表示している画像の番号を元に画像を表示する
         displayImage()
+        // 進むボタン・戻るボタンを有効化
+        nextImageButton.isEnabled = true
+        backImageButton.isEnabled = true
+        
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         // segueから遷移先のResultViewControllerを取得する
         let resultViewController:ResultViewController = segue.destination as! ResultViewController
+        if self.timer != nil {
+            self.timer.invalidate()
+        }
         // 遷移先のResultViewControllerで宣言しているx, yに値を代入して渡す
         resultViewController.name = imageNameArray[dispImageNo]
     }
@@ -105,12 +114,18 @@ class ViewController: UIViewController {
         // 動作中のタイマーを1つに保つために、 timer が存在しない場合だけ、タイマーを生成して動作させる
         if self.timer == nil {
             slideshowButton.setTitle("停止", for: .normal)
+            // 進むボタン・戻るボタンを無効化
+            nextImageButton.isEnabled = false
+            backImageButton.isEnabled = false
             // 再生ボタンを押すとタイマー作成、始動
             self.timer = Timer.scheduledTimer(timeInterval: 2.0, target: self, selector: #selector(timerAction(_:)), userInfo: nil, repeats: true)
         } else {
             self.timer.invalidate()
             self.timer = nil
             slideshowButton.setTitle("再生", for: .normal)
+            // 進むボタン・戻るボタンを有効化
+            nextImageButton.isEnabled = true
+            backImageButton.isEnabled = true
         }
     }
 
@@ -119,6 +134,10 @@ class ViewController: UIViewController {
     //}
     
     @IBAction func unwind(_ segue: UIStoryboardSegue) {
+        if self.timer != nil {
+            // タイマー再開
+            self.timer = Timer.scheduledTimer(timeInterval: 2.0, target: self, selector: #selector(timerAction(_:)), userInfo: nil, repeats: true)
+        }
     }
 
 }
